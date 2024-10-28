@@ -176,6 +176,41 @@ em <- function(tickers, start_date, end_date) {
   ))
 }
 
+# Function for Gaussian Copula
+gaussian_copula <- function(u) {
+  gaussian_cop <- normalCopula(dim = 2)
+  fit_gaussian <- fitCopula(gaussian_cop, u, method = "ml")
+  
+  # Extract goodness of fit metrics
+  return(list(copula = fit_gaussian@copula,
+              logLik = logLik(fit_gaussian),
+              AIC = AIC(fit_gaussian),
+              BIC = BIC(fit_gaussian)))
+}
+# Function for Gumbel Copula
+gumbel_copula <- function(u) {
+  gumbel_cop <- gumbelCopula()
+  fit_gumbel <- fitCopula(gumbel_cop, u, method = "ml")
+  
+  # Extract goodness of fit metrics
+  return(list(copula = fit_gumbel@copula,
+              logLik = logLik(fit_gumbel),
+              AIC = AIC(fit_gumbel),
+              BIC = BIC(fit_gumbel)))
+}
+
+# Function for Clayton Copula
+clayton_copula <- function(u) {
+  clayton_cop <- claytonCopula()
+  fit_gumbel <- fitCopula(clayton_cop, u, method = "ml")
+  
+  # Extract goodness of fit metrics
+  return(list(copula = fit_gumbel@copula,
+              logLik = logLik(fit_gumbel),
+              AIC = AIC(fit_gumbel),
+              BIC = BIC(fit_gumbel)))
+}
+
 copula_conditional <- function(stocks, train_start, train_end, test_start, test_end, p1, p2, fixed_cost, percentage_cost){
   # training data
   adjusted_col1 <- paste0(stocks[1], ".Close")
@@ -207,7 +242,10 @@ copula_conditional <- function(stocks, train_start, train_end, test_start, test_
     return(pobs_data)
   }
   u <- convert_to_pobs(df_train)
-  
+
+  gaussian_fit <- gaussian_copula(u)
+  gumbel_fit <- gumbel_copula(u)
+  clayton_fit <- clayton_copula(u)
   weights <- em(stocks, train_start, train_end)$optimized_weights
   
   # Mixed Conditional Probability Function
